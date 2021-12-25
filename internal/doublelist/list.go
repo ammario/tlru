@@ -62,8 +62,11 @@ func (l *List[T]) Pop(n *Node[T]) {
 	return
 }
 
-func (l *List[T]) PopTail() *Node[T] {
+func (l *List[T]) PopTail() (*Node[T], bool) {
+	if l.tail == nil {
+		return nil, false
+	}
 	oldTail := l.tail
 	l.Pop(l.tail)
-	return oldTail
+	return oldTail, true
 }

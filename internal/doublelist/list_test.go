@@ -34,7 +34,10 @@ func TestList(t *testing.T) {
 	assertContents(t, l, []int{-20, -10, 10, 20})
 	l.Pop(n)
 	assertContents(t, l, []int{-20, 10, 20})
-	n = l.PopTail()
+	n, ok := l.PopTail()
+	if !ok {
+		t.Fatalf("tail should exist")
+	}
 	assertContents(t, l, []int{10, 20})
 	if n.Data != -20 {
 		t.Fatalf("unexpected data %v", n.Data)
