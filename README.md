@@ -1,7 +1,7 @@
 # cache
 [![Go Reference](https://pkg.go.dev/badge/github.com/ammario/cache.svg)](https://pkg.go.dev/github.com/ammario/cache)
 
-Package `cache` implements a generic LRU cache for Go.
+Package `cache` implements a generic LRU (least recently used) cache for Go.
 
 ```
 go get github.com/ammario/cache
