@@ -9,7 +9,7 @@ go get github.com/ammario/cache
 
 ## Basic Usage
 ```go
-c := NewLRU(cache.ConstantCost, 10)
+c := NewLRU[string](cache.ConstantCost[string], 10)
 c.Set("dog", "friendly")
 
 // "friendly", "ok"
