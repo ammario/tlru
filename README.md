@@ -9,11 +9,11 @@ go get github.com/ammario/cache
 
 ## Basic Usage
 ```go
-c := NewLRU[string](cache.ConstantCost[string], 10)
-c.Set("dog", "friendly")
+c := NewLRU[int](cache.ConstantCost[string], 10)
+c.Set("dog", 10)
 
-// "friendly", "ok"
-v, ok := c.Get("dog")
+// 10, true
+v, ok := c.Get()
 ```
 ## Minimal disclaimer
 This package is intentionally minimal (0 external dependencies, 5 exported symbols) and is not
