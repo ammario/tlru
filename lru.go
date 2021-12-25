@@ -76,5 +76,7 @@ func (l *LRU[T]) Get(key string) (v T, exists bool) {
 	if !exists {
 		return v, false
 	}
+	l.list.Pop(node)
+	l.index[key] = l.list.Append(node.Data)
 	return node.Data.data, true
 }

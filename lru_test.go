@@ -23,7 +23,7 @@ func TestLRU(t *testing.T) {
 		for i := 0; i < 100; i++ {
 			c.Set(strconv.Itoa(i), i)
 			// 4 is our busy value that should not be evicted.
-			c.Set("4", 4)
+			c.Get("4")
 		}
 		for i := 0; i < 100; i++ {
 			v, ok := c.Get(strconv.Itoa(i))
