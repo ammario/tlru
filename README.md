@@ -17,7 +17,7 @@ c := lru.New(lru.ConstantCost[int], 100)
 c.Set("dog", 3.14)
 
 // 3.14, true
-v, ok := c.Get()
+v, ok := c.Get("dog")
 ```
 
 Dynamic costs:
