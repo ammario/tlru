@@ -1,2 +1,2 @@
-// Package LRU implements a basic in-memeory LRU cache.
+// Package LRU implements a basic in-memory LRU cache.
 package lru
