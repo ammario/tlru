@@ -1,6 +1,6 @@
 package lru
 
-import "github.com/ammario/cache/internal/doublelist"
+import "github.com/ammario/lru-cache/internal/doublelist"
 
 type Coster[T any] func(v T) int
 

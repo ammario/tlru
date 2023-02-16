@@ -1,2 +1,2 @@
-// Package cache implements generic caching data structures.
-package cache
+// Package LRU implements a basic in-memeory LRU cache.
+package lru
