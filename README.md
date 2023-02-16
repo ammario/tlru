@@ -1,7 +1,8 @@
 # lru-cache
 [![Go Reference](https://pkg.go.dev/badge/github.com/ammario/lru-cache.svg)](https://pkg.go.dev/github.com/ammario/lru-cache)
 
-Package `lru` implements a generic LRU (least recently used) cache for Go.
+Package `lru` implements a generic LRU (least recently used) cache for Go. The
+cache is safe for concurrent use.
 
 ```
 go get github.com/ammario/lru-cache

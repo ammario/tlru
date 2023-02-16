@@ -1,6 +1,10 @@
 package lru
 
-import "github.com/ammario/lru-cache/internal/doublelist"
+import (
+	"sync"
+
+	"github.com/ammario/lru-cache/internal/doublelist"
+)
 
 type Coster[T any] func(v T) int
 
@@ -19,6 +23,8 @@ type dataWithKey[T any] struct {
 // LRU implements a least-frequently-used cache structure.
 // When the cache exceeds a given cost limit, the oldest chunks of data are discarded.
 type LRU[NodeType any] struct {
+	mu sync.Mutex
+
 	index map[string]*doublelist.Node[dataWithKey[NodeType]]
 	list  *doublelist.List[dataWithKey[NodeType]]
 	// coster allows for user-defined relative weighting of cache members.
@@ -28,7 +34,7 @@ type LRU[NodeType any] struct {
 	maxCost int
 }
 
-// New instantiates a ready-to-use LRU cache.
+// New instantiates a ready-to-use LRU cache. It is safe for concurrent use.
 func New[NodeType any](cost Coster[NodeType], maxCost int) *LRU[NodeType] {
 	return &LRU[NodeType]{
 		index:   make(map[string]*doublelist.Node[dataWithKey[NodeType]]),
@@ -50,8 +56,7 @@ func (l *LRU[T]) evictOverages() {
 	}
 }
 
-// Delete deletes a value from the cache.
-func (l *LRU[T]) Delete(key string) {
+func (l *LRU[T]) delete(key string) {
 	node, ok := l.index[key]
 	if !ok {
 		return
@@ -61,10 +66,21 @@ func (l *LRU[T]) Delete(key string) {
 	delete(l.index, key)
 }
 
+// Delete removes an entry from the cache.
+func (l *LRU[T]) Delete(key string) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	l.delete(key)
+}
+
 // Set adds a new value to the cache.
-// Set should be used to add new values and reset values to the top of the cache.
+// Set may also be used to bump a value to the top of the cache.
 func (l *LRU[T]) Set(key string, v T) {
-	l.Delete(key)
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	l.delete(key)
 	l.cost += l.coster(v)
 	l.evictOverages()
 	l.index[key] = l.list.Append(dataWithKey[T]{data: v, key: key})
@@ -72,6 +88,9 @@ func (l *LRU[T]) Set(key string, v T) {
 
 // Get retrieves a value from the cache, if it exists.
 func (l *LRU[T]) Get(key string) (v T, exists bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	node, exists := l.index[key]
 	if !exists {
 		return v, false
