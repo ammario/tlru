@@ -20,7 +20,7 @@ go get github.com/ammario/tlru@master
 Basic example:
 ```go
 // This cache can store up to 100 values.
-c := tlru.New(tlru.ConstantCost[int], 100)
+c := tlru.New[string](tlru.ConstantCost[int], 100)
 c.Set("dog", 3.14, time.Second)
 
 // 3.14, ~time.Now().Add(time.Second), true
@@ -30,7 +30,7 @@ v, deadline, ok := c.Get("dog")
 Dynamic costs:
 ```go
 // This cache can store up to 100 bytes.
-c := New(
+c := New[string](
     func(v string) int {
         return len(v)
     },
