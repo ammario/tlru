@@ -56,4 +56,14 @@ func TestLRU(t *testing.T) {
 			t.Fatalf("value %v:%v still exists", "a", v)
 		}
 	})
+
+	t.Run("TestDynamicCost", func(t *testing.T) {
+		c := New(
+			func(v string) int {
+				return len(v)
+			},
+			100,
+		)
+		c.Set("some_key", "some value")
+	})
 }
