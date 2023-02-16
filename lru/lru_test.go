@@ -1,4 +1,4 @@
-package cache
+package lru
 
 import (
 	"strconv"
@@ -7,7 +7,7 @@ import (
 
 func TestLRU(t *testing.T) {
 	t.Run("OverrideValue", func(t *testing.T) {
-		c := NewLRU[int](ConstantCost[int], 10)
+		c := New(ConstantCost[int], 10)
 		c.Set("a", 10)
 		c.Set("a", 20)
 		v, ok := c.Get("a")
@@ -19,7 +19,7 @@ func TestLRU(t *testing.T) {
 		}
 	})
 	t.Run("OldValuesEvicted", func(t *testing.T) {
-		c := NewLRU[int](ConstantCost[int], 10)
+		c := New(ConstantCost[int], 10)
 		for i := 0; i < 100; i++ {
 			c.Set(strconv.Itoa(i), i)
 			// 4 is our busy value that should not be evicted.
@@ -45,7 +45,7 @@ func TestLRU(t *testing.T) {
 		}
 	})
 	t.Run("DeleteEntry", func(t *testing.T) {
-		c := NewLRU[int](ConstantCost[int], 10)
+		c := New(ConstantCost[int], 10)
 		c.Set("a", 10)
 		c.Delete("a")
 		if c.cost != 0 {

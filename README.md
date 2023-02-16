@@ -7,14 +7,15 @@ Package `cache` implements a generic LRU (least recently used) cache for Go.
 go get github.com/ammario/cache
 ```
 
-## Basic Usage
+## LRU
 ```go
-c := NewLRU[int](cache.ConstantCost[string], 10)
+c := lru.New(cache.ConstantCost[string], 10)
 c.Set("dog", 10)
 
 // 10, true
 v, ok := c.Get()
 ```
+
 ## Minimal disclaimer
 This package is intentionally minimal (0 external dependencies, 5 exported symbols) and is not
 designed to support every use case.

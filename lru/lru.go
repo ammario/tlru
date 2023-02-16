@@ -1,4 +1,4 @@
-package cache
+package lru
 
 import "github.com/ammario/cache/internal/doublelist"
 
@@ -28,8 +28,8 @@ type LRU[NodeType any] struct {
 	maxCost int
 }
 
-// NewLRU instantiates a ready-to-use LRU cache.
-func NewLRU[NodeType any](cost Coster[NodeType], maxCost int) *LRU[NodeType] {
+// New instantiates a ready-to-use LRU cache.
+func New[NodeType any](cost Coster[NodeType], maxCost int) *LRU[NodeType] {
 	return &LRU[NodeType]{
 		index:   make(map[string]*doublelist.Node[dataWithKey[NodeType]]),
 		list:    &doublelist.List[dataWithKey[NodeType]]{},
