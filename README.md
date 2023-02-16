@@ -1,18 +1,18 @@
 # tlru
 [![Go Reference](https://pkg.go.dev/badge/github.com/ammario/tlru.svg)](https://pkg.go.dev/github.com/ammario/tlru)
 
-Package `tlru` implements TLRU (Time-Aware Least Recently Used)
+Package `tlru` implements TLRU (Time Aware Least Recently Used)
 cache for Go.
 
 Features:
 
 * Uses generics for type-safety
-* Stores contents in memory
+* Memory-backed
 * Safe for concurrent use
 * No background threads
 
 ```
-go get github.com/ammario/tlru
+go get github.com/ammario/tlru@master
 ```
 
 ## Examples
@@ -43,13 +43,13 @@ c.Set("some_key", "some value", time.Minute)
 
 Cache eviction occurs during:
 
-- Every call to `Set()` 
-- A direct call to `Evict()`
-- Calls to `Get` (for that key) 
+- Calls to `Set()` 
+- Calls to `Evict()`
+- Calls to `Get()` (for that key only) 
 
 Cache eviction is fast because the LRU and TTL indices are sorted. In most
-cases, the evictor only performs a few memory accesses per call. Calling `Evict()`
-is usually unnecessary.
+cases, a call to the evictor only touches a few entries. Calling `Evict()`
+directly is usually unnecessary.
 
 ## Benchmarks
 ```
