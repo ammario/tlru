@@ -59,7 +59,6 @@ func (l *List[T]) Pop(n *Node[T]) {
 
 	// Avoid any misconceptions.
 	n.next, n.prev = nil, nil
-	return
 }
 
 func (l *List[T]) PopTail() (*Node[T], bool) {
@@ -69,4 +68,12 @@ func (l *List[T]) PopTail() (*Node[T], bool) {
 	oldTail := l.tail
 	l.Pop(l.tail)
 	return oldTail, true
+}
+
+func (l *List[T]) Tail() *Node[T] {
+	return l.tail
+}
+
+func (l *List[T]) Head() *Node[T] {
+	return l.head
 }
