@@ -10,6 +10,8 @@ import (
 	"github.com/armon/go-radix"
 )
 
+// Coster is a function that returns the approximate memory cost of a
+// given value.
 type Coster[T any] func(v T) int
 
 // ConstantCost always returns 1.
@@ -25,7 +27,7 @@ type dataWithKey[K comparable, V any] struct {
 	deadline time.Time
 }
 
-// Cache implements a least-frequently-used cache structure.
+// Cache implements a time aware least-frequently-used cache structure.
 // When the cache exceeds a given cost limit, the oldest chunks of data are discarded.
 type Cache[K comparable, V any] struct {
 	mu sync.Mutex
@@ -39,18 +41,18 @@ type Cache[K comparable, V any] struct {
 	// coster allows for user-defined relative weighting of cache members.
 	coster Coster[V]
 	cost   int
-	// maxCost sets the maximum
-	maxCost int
+	// costLimit sets the maximum storage cost of the cache.
+	costLimit int
 }
 
 // New instantiates a ready-to-use LRU cache. It is safe for concurrent use.
-func New[K comparable, V any](cost Coster[V], maxCost int) *Cache[K, V] {
+func New[K comparable, V any](cost Coster[V], costLimit int) *Cache[K, V] {
 	return &Cache[K, V]{
-		index:   make(map[K]*doublelist.Node[dataWithKey[K, V]]),
-		lruList: &doublelist.List[dataWithKey[K, V]]{},
-		ttlTrie: radix.New(),
-		coster:  cost,
-		maxCost: maxCost,
+		index:     make(map[K]*doublelist.Node[dataWithKey[K, V]]),
+		lruList:   &doublelist.List[dataWithKey[K, V]]{},
+		ttlTrie:   radix.New(),
+		coster:    cost,
+		costLimit: costLimit,
 	}
 }
 
@@ -106,7 +108,7 @@ func (l *Cache[K, V]) evictExpires() int {
 
 func (l *Cache[K, V]) evictOverages() int {
 	var ds int
-	for l.cost > l.maxCost {
+	for l.cost > l.costLimit {
 		last := l.lruList.Tail()
 		if last == nil {
 			// No data left to evictOverages. Avoid looping forever.
@@ -174,11 +176,7 @@ func (l *Cache[K, V]) Set(key K, v V, ttl time.Duration) {
 	)
 }
 
-// Get retrieves a value from the cache, if it exists.
-func (l *Cache[K, V]) Get(key K) (v V, deadline time.Time, exists bool) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
+func (l *Cache[K, V]) get(key K) (v V, deadline time.Time, exists bool) {
 	node, exists := l.index[key]
 	if !exists {
 		return v, time.Time{}, false
@@ -193,7 +191,17 @@ func (l *Cache[K, V]) Get(key K) (v V, deadline time.Time, exists bool) {
 	return node.Data.data, node.Data.deadline, true
 }
 
+// Get retrieves a value from the cache, if it exists.
+func (l *Cache[K, V]) Get(key K) (v V, deadline time.Time, exists bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	return l.get(key)
+}
+
 // Evict removes all expired entries from the cache.
+// Bear in mind Set and Delete will also evict entries, so most users should
+// not call Evict directly.
 func (l *Cache[K, V]) Evict() int {
 	l.mu.Lock()
 	defer l.mu.Unlock()

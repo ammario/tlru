@@ -1,5 +1,5 @@
 # tlru
-[![Go Reference](https://pkg.go.dev/badge/github.com/ammario/tlru.svg)](https://pkg.go.dev/github.com/ammario/tlru)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ammario/tlru.svg)](https://pkg.go.dev/github.com/ammario/tlru@master)
 
 Package `tlru` implements TLRU (Time Aware Least Recently Used)
 cache for Go.
