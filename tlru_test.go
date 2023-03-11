@@ -61,7 +61,7 @@ func TestTLRU_Cost(t *testing.T) {
 		}
 	})
 
-	t.Run("TestDynamicCost", func(t *testing.T) {
+	t.Run("DynamicCost", func(t *testing.T) {
 		c := New[string](
 			func(v string) int {
 				return len(v)
@@ -69,6 +69,20 @@ func TestTLRU_Cost(t *testing.T) {
 			100,
 		)
 		c.Set("some_key", "some value", time.Second)
+	})
+
+	t.Run("UnlimitedCost", func(t *testing.T) {
+		c := New[int, int](nil, -1)
+
+		for i := 0; i < 100; i++ {
+			c.Set(i, i+1, time.Second)
+		}
+
+		for i := 0; i < 100; i++ {
+			ii, _, ok := c.Get(i)
+			require.True(t, ok)
+			require.Equal(t, i+1, ii)
+		}
 	})
 }
 

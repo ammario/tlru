@@ -45,8 +45,13 @@ type Cache[K comparable, V any] struct {
 	costLimit int
 }
 
-// New instantiates a ready-to-use LRU cache. It is safe for concurrent use.
+// New instantiates a ready-to-use LRU cache. It is safe for concurrent use. If cost is nil,
+// a constant cost of 1 is assumed.
+// Use -1 for costLimit to disable cost limiting.
 func New[K comparable, V any](cost Coster[V], costLimit int) *Cache[K, V] {
+	if cost == nil {
+		cost = ConstantCost[V]
+	}
 	return &Cache[K, V]{
 		index:     make(map[K]*doublelist.Node[dataWithKey[K, V]]),
 		lruList:   &doublelist.List[dataWithKey[K, V]]{},
@@ -107,6 +112,9 @@ func (l *Cache[K, V]) evictExpires() int {
 }
 
 func (l *Cache[K, V]) evictOverages() int {
+	if l.costLimit < 0 {
+		return 0
+	}
 	var ds int
 	for l.cost > l.costLimit {
 		last := l.lruList.Tail()
