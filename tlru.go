@@ -158,6 +158,8 @@ func (l *Cache[K, V]) Set(key K, v V, ttl time.Duration) {
 
 	// If we're getting insert conflicts, we bump the deadline in an
 	// exponentially increasing fashion to prevent thrashing.
+	// TODO: We should use a string slice as the value to more cleanly
+	// resolve conflicts.
 	conflictDelay := time.Nanosecond
 
 	// It's possible that multiple keys have the same deadline, in which case
