@@ -209,6 +209,25 @@ func (l *Cache[K, V]) Get(key K) (v V, deadline time.Time, exists bool) {
 	return l.get(key)
 }
 
+// Do is a helper that retrieves a value from the cache, if it exists, and
+// calls the provided function to compute the value if it does not.
+//
+// The return signature omits deadline and exists for ergonomics.
+func (l *Cache[K, V]) Do(key K, fn func() (V, error), ttl time.Duration) (V, error) {
+	v, _, ok := l.Get(key)
+	if ok {
+		return v, nil
+	}
+
+	v, err := fn()
+	if err != nil {
+		return v, err
+	}
+
+	l.Set(key, v, ttl)
+	return v, nil
+}
+
 // Evict removes all expired entries from the cache.
 // Bear in mind Set and Delete will also evict entries, so most users should
 // not call Evict directly.

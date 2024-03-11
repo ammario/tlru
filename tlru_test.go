@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTLRU_Cost(t *testing.T) {
+func TestTLRU(t *testing.T) {
 	t.Run("OverrideValue", func(t *testing.T) {
 		c := New[string](ConstantCost[int], 10)
 		c.Set("a", 10, time.Second)
@@ -83,6 +83,27 @@ func TestTLRU_Cost(t *testing.T) {
 			require.True(t, ok)
 			require.Equal(t, i+1, ii)
 		}
+	})
+
+	t.Run("Do", func(t *testing.T) {
+		c := New[string, int](nil, -1)
+
+		n := 10
+		fn := func() (int, error) {
+			n += 1
+			return n, nil
+		}
+
+		v, err := c.Do("a", fn, time.Second)
+		require.NoError(t, err)
+
+		require.Equal(t, 11, v)
+
+		v, err = c.Do("a", fn, time.Second)
+		require.NoError(t, err)
+
+		// No recompute, cache hit.
+		require.Equal(t, 11, v)
 	})
 }
 
